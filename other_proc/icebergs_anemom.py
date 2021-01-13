@@ -42,15 +42,21 @@ from windrose import WindroseAxes
 
 def mklne(pltax,tseries,drawmedian=False,drawpercent=False):
     #for rtime in rece_idx:
-        #pltax.vlines(x=rtime, ymin=np.min(tseries), ymax=np.max(tseries),linewidth=1, color='blue', zorder=1,alpha=0.5)
+    pltax.vlines(x=tseries.index[350000], ymin=np.min(tseries), ymax=np.max(tseries),linewidth=6, color='green', zorder=1,alpha=0.5)
 
-    #if drawmedian:
-        #pltax.hlines(y=np.median(tseries), xmin=start, xmax=end,linewidth=3, color='green', zorder=1,alpha=0.5)
+    ax.plot(tseries.rolling(window=500,center=True,win_type='hamming').mean(),label='rolling 500 hamming tsteps',color='k')
 
-    if drawpercent:
-        pltax.plot(tseries[tseries>np.percentile(tseries,90)],label='> 90 percentile',color='blue',lw=1.2)
+    #if drawpercent:
+        #pme=tseries[tseries>np.percentile(tseries,90)]
+        #pltax.plot(pme.index, pme.values,label='> 90 percentile',color='blue',lw=1.2)
 
-        #pltax.plot(tseries[tseries<np.percentile(tseries,10)],label='< 10 percentile',color='deeppink',lw=1.2)
+    pltax.hlines(y=np.percentile(tseries,90), xmin=tseries.index[0], xmax=tseries.index[-1],linewidth=3, color='yellow', zorder=1,alpha=0.9)
+    pltax.hlines(y=np.percentile(tseries,80), xmin=tseries.index[0], xmax=tseries.index[-1],linewidth=3, color='yellow', zorder=1,alpha=0.9)
+    pltax.hlines(y=np.percentile(tseries,70), xmin=tseries.index[0], xmax=tseries.index[-1],linewidth=3, color='yellow', zorder=1,alpha=0.9)
+    pltax.hlines(y=np.percentile(tseries,60), xmin=tseries.index[0], xmax=tseries.index[-1],linewidth=3, color='yellow', zorder=1,alpha=0.9)
+
+    if drawmedian:
+        pltax.hlines(y=np.median(tseries), xmin=tseries.index[0], xmax=tseries.index[-1],linewidth=3, color='yellow', zorder=1,alpha=0.9)
     return
 
 def grab_data(ifol):
@@ -106,24 +112,42 @@ if __name__ == "__main__":
     ax=fig.add_subplot(1, 1,1)
     #df['True_wind_dir_TO'].plot(color='b')
     #df['True_wind_dir_FROM'].plot(color='r')
-    df['True_wind_speed_ms'].plot(color='r',ax=ax)
+    #df['True_wind_speed_ms'].plot(color='r',ax=ax)
+    ax.plot(df['True_wind_speed_ms'],label='True_wind_speed_ms',color='r')
     mklne(ax,df['True_wind_speed_ms'],drawmedian=True,drawpercent=True)
     ax.set_ylabel('True_wind_speed (m/s)')
     ax.set_xlabel('Date')
     ax.grid(True)
     ax.legend()
     fig.savefig('./0.png',dpi=300,bbox_inches='tight')
-    
+    lg.info('Plot created: '+'./0.png')
 
+    plt.close('all')
+    fig=plt.figure(figsize=(15.0,5.0))
+    ax=fig.add_subplot(1, 1,1)
+    ax.plot(df['True_wind_dir_TO'],label='True_wind_dir_TO',color='r')
+    ax.set_ylabel('True_wind_dir_TO ')
+    tseries=df['True_wind_dir_TO']
+    ax.vlines(x=tseries.index[350000], ymin=np.min(tseries), ymax=np.max(tseries),linewidth=6, color='green', zorder=1,alpha=0.5)
+    ax.plot(tseries.rolling(window=500,center=True,win_type='hamming').mean(),label='rolling 500 hamming tsteps',color='k')
+    ax.set_xlabel('Date')
+    ax.grid(True)
+    ax.legend()
+    fig.savefig('./0b.png',dpi=300,bbox_inches='tight')
+    lg.info('Plot created: '+'./0b.png')
+
+    plt.close('all')
+    fig=plt.figure()
+
+    ws = np.random.random(500) * 6
+    wd = np.random.random(500) * 360
+    ax = WindroseAxes.from_ax(fig=fig)
 
     # Create wind speed and direction variables
-    #ws = np.random.random(500) * 6
-    #wd = np.random.random(500) * 360
-    #ax = WindroseAxes.from_ax()
-    #ax.bar(df['True_wind_dir_TO'], df['True_wind_speed_ms'], normed=True, opening=0.8, edgecolor='white')
-    #ax.set_legend()
-    #plt.show()
-    #plt.show()
+    ax.bar(df['True_wind_dir_TO'], df['True_wind_speed_ms'], normed=True, opening=0.8, edgecolor='white')
+    ax.set_legend(loc=2)
+    fig.savefig('./1.png',dpi=300,bbox_inches='tight')
+    lg.info('Plot created: '+'./1.png')
 
 
 
